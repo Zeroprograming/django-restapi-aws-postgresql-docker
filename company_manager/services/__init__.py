@@ -1,1 +1,1 @@
-from .ses import send_email_with_attachment
+from .ses import send_ses_email

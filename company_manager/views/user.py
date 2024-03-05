@@ -24,9 +24,7 @@ class UserViewSet(viewsets.ModelViewSet):
         password = data.get('password')
         
         user = get_object_or_404(User, email=email)
-        
-        print(user)
-        
+                
         # Verificar si la contraseña es correcta
         if not user.check_password(password):
             return Response({'error': 'Invalid password!'}, status=status.HTTP_400_BAD_REQUEST)

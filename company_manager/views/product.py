@@ -8,6 +8,8 @@ from company_manager.models import Product, Enterprise
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
@@ -20,7 +22,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     
-    @action(detail=False, methods=['get'], url_path='search', url_name='search', permission_classes=[permissions.AllowAny])
+    @action(detail=False, methods=['get'], url_path='search', url_name='search', permission_classes=[permissions.AllowAny], authentication_classes=[])
     def search(self, request):
         data = request.query_params
         name = data.get('name')
@@ -47,7 +49,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    @action(detail=False, methods=['get'], url_path='enterprise-products', url_name='enterprise-products', permission_classes=[permissions.AllowAny])
+    @action(detail=False, methods=['get'], url_path='enterprise-products', url_name='enterprise-products', permission_classes=[permissions.AllowAny], authentication_classes=[])
     def enterprise_products(self, request):
         enterprise_id = request.query_params.get('id')  # Obtener el id de la empresa de los parámetros de consulta
         try:
@@ -58,7 +60,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         except Enterprise.DoesNotExist:
             return Response({'error': 'Enterprise not found'}, status=status.HTTP_404_NOT_FOUND)
         
-    @action(detail=False, methods=['get'], url_path='generate-report', url_name='generate-report', permission_classes=[permissions.AllowAny])
+    @action(detail=False, methods=['get'], url_path='generate-report', url_name='generate-report', permission_classes=[permissions.AllowAny], authentication_classes=[])
     def generate_report(self, request):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="product_list.pdf"'
@@ -96,3 +98,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         pdf.build([table])
 
         return response
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]

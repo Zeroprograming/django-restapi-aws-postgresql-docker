@@ -6,6 +6,8 @@ from company_manager.models import Product, Order
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
@@ -17,7 +19,10 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     
-    @action(detail=False, methods=['post'], url_path='create-order', url_name='create-order', permission_classes=[permissions.AllowAny])
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    @action(detail=False, methods=['post'], url_path='create-order', url_name='create-order')
     def create_order(self, request):
         data = request.data
         product_ids = data.get('products')
@@ -48,7 +53,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     
         return Response({'message': 'Order created successfully', 'total': total}, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=['get'], url_path='print-order', url_name='print-order', permission_classes=[permissions.AllowAny])
+    @action(detail=False, methods=['get'], url_path='print-order', url_name='print-order')
     def print_order(self, request):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="order_details.pdf"'
@@ -95,4 +100,4 @@ class OrderViewSet(viewsets.ModelViewSet):
             return response
         except Order.DoesNotExist:
             return Response({'error': f'Order with id {order_id} does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        
+    

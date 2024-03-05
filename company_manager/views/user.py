@@ -66,6 +66,6 @@ class UserTypeViewSet(viewsets.ModelViewSet):
     def list_user_types(self, request):
         return super().list(request)        
     
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
 

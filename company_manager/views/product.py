@@ -1,6 +1,10 @@
+import os
+import uuid
+from django.conf import settings
 from rest_framework import viewsets, permissions
 
 from company_manager.models.category import Category
+from company_manager.services.ses import send_ses_email
 from ..serializers import  ProductSerializer
 
 from company_manager.models import Product, Enterprise
@@ -60,10 +64,12 @@ class ProductViewSet(viewsets.ModelViewSet):
         except Enterprise.DoesNotExist:
             return Response({'error': 'Enterprise not found'}, status=status.HTTP_404_NOT_FOUND)
         
-    @action(detail=False, methods=['get'], url_path='generate-report', url_name='generate-report', permission_classes=[permissions.AllowAny], authentication_classes=[])
+    @action(detail=False, methods=['get'], url_path='generate-report', url_name='generate-report', permission_classes=[IsAuthenticated], authentication_classes=[TokenAuthentication])
     def generate_report(self, request):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="product_list.pdf"'
+        
+        user = request.user  # Obtener el usuario autenticado
 
         products = Product.objects.all()
 
@@ -96,6 +102,29 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         # Agregar la tabla al documento PDF
         pdf.build([table])
+        
+        # Generar un nombre único para el archivo PDF
+        pdf_filename = f"{uuid.uuid4()}.pdf"
+
+        # Obtener la ruta completa del archivo PDF
+        pdf_file_path = os.path.join(settings.BASE_DIR, 'company_manager', 'temp', pdf_filename)
+
+        
+        # Guardar el archivo PDF en la ruta de destino
+        with open(pdf_file_path, 'wb') as f:
+            f.write(response.content)
+        
+        # Enviar el correo electrónico con el archivo adjunto
+        send_ses_email(
+            ('Informe de productos'),
+            ('Adjunto encontrarás el informe de productos.'),
+            ('Adjunto encontrarás el informe de productos.'),
+            [user.email],
+            pdf_file_path
+        )
+        
+        # Eliminar el archivo PDF después de enviar el correo electrónico
+        os.remove(pdf_file_path)
 
         return response
 

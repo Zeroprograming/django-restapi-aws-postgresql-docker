@@ -13,6 +13,8 @@ class UserType(models.Model):
 
 class User(AbstractUser):
 
+    username = None
+    email = models.EmailField(unique=True)  # Usar el email como único campo
     type = models.ForeignKey(UserType,
                              on_delete=models.CASCADE, null=False)
     
@@ -20,6 +22,9 @@ class User(AbstractUser):
     user_permissions = models.ManyToManyField(Permission, related_name='custom_user_set')    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
     
     @staticmethod
     def get_all_users():

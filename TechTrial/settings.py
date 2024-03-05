@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-_)5)#5y7a03-afge@2t4$yn^n*s_+3wuui$xw=%b9+)u$s)h$e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['18.234.124.123', 'flummy.dev']
+ALLOWED_HOSTS = ['18.234.124.123', 'flummy.dev','127.0.0.1']
 
 AUTH_USER_MODEL = 'company_manager.User'
 
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_yasg',
     'company_manager',
     'rest_framework',
     "rest_framework.authtoken",
